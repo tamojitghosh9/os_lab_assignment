@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU Scheduling Simulator</title>
+    <meta name="description" content="A dynamic, interactive CPU Scheduling Simulator showcasing FCFS, SJF, SRTF, and Round Robin (RR) algorithms.">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header animate-fade-in">
+            <div class="logo">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2" ry="2" stroke="var(--accent)"></rect>
+                    <rect x="9" y="9" width="6" height="6" fill="var(--accent-glow)"></rect>
+                    <line x1="9" y1="1" x2="9" y2="4"></line>
+                    <line x1="15" y1="1" x2="15" y2="4"></line>
+                    <line x1="9" y1="20" x2="9" y2="23"></line>
+                    <line x1="15" y1="20" x2="15" y2="23"></line>
+                    <line x1="20" y1="9" x2="23" y2="9"></line>
+                    <line x1="20" y1="14" x2="23" y2="14"></line>
+                    <line x1="1" y1="9" x2="4" y2="9"></line>
+                    <line x1="1" y1="14" x2="4" y2="14"></line>
+                </svg>
+                <h1>CPU Scheduler</h1>
+            </div>
+            <p class="subtitle">Interactive Visualizer & Analyzer</p>
+        </header>
+
+        <main>
+            <!-- Controls Region -->
+            <section class="card glass-panel animate-fade-in" id="controls-section" style="animation-delay: 0.1s">
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <label for="mode-selector">Display Mode</label>
+                        <select id="mode-selector" class="dropdown">
+                            <option value="single">Single Algorithm Mode</option>
+                            <option value="comparison">Comparison Mode</option>
+                        </select>
+                    </div>
+                    <div class="control-group" id="algo-group">
+                        <label for="algo-selector">Algorithm</label>
+                        <select id="algo-selector" class="dropdown">
+                            <option value="FCFS">First Come First Serve (FCFS)</option>
+                            <option value="SJF">Shortest Job First (SJF)</option>
+                            <option value="SRTF">Preemptive SJF (SRTF)</option>
+                            <option value="RR">Round Robin (RR)</option>
+                        </select>
+                    </div>
+                    <div class="control-group" id="tq-group" style="display: none;">
+                        <label for="time-quantum">Time Quantum</label>
+                        <input type="number" id="time-quantum" min="1" value="2" class="num-input">
+                    </div>
+                    <div class="control-group action-group">
+                         <button id="reset-btn" class="btn secondary-btn" title="Reset all processes to default">Clear & Reset</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Input Section -->
+            <section class="card glass-panel animate-fade-in" id="input-section" style="animation-delay: 0.2s">
+                <div class="section-header">
+                    <h2>Process Manager</h2>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="number" id="random-n-input" class="num-input" min="1" max="20" value="5" style="width: 60px;" title="Number of random processes">
+                        <button id="generate-random-btn" class="btn secondary-btn">Generate</button>
+                        <button id="add-process-btn" class="btn primary-btn">+ Add Process</button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table id="process-table">
+                        <thead>
+                            <tr>
+                                <th>Process ID</th>
+                                <th>Color</th>
+                                <th>Arrival Time</th>
+                                <th>Burst Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Output Region -->
+            <!-- Single Mode Output -->
+            <section id="single-output-section" class="output-wrapper animate-fade-in" style="animation-delay: 0.3s">
+                 <div class="card glass-panel">
+                     <h2 id="single-algo-title">Execution Timeline (Gantt Chart)</h2>
+                     <div class="gantt-chart-wrapper">
+                         <div class="gantt-chart" id="single-gantt"></div>
+                         <div class="gantt-ticks" id="single-gantt-ticks"></div>
+                     </div>
+                 </div>
+                 
+                 <div class="card glass-panel">
+                     <h2>Performance Metrics</h2>
+                     <div class="table-container">
+                         <table id="metrics-table">
+                             <thead>
+                                 <tr>
+                                     <th>Process</th>
+                                     <th>Arrival Time</th>
+                                     <th>Burst Time</th>
+                                     <th>Completion Time</th>
+                                     <th>Turnaround Time</th>
+                                     <th>Waiting Time</th>
+                                 </tr>
+                             </thead>
+                             <tbody>
+                                 <!-- JS populated -->
+                             </tbody>
+                             <tfoot>
+                                 <!-- JS populated averages -->
+                             </tfoot>
+                         </table>
+                     </div>
+                 </div>
+            </section>
+
+            <!-- Comparison Mode Output -->
+            <section id="comparison-output-section" class="output-wrapper animate-fade-in" style="display: none; animation-delay: 0.3s">
+                 <div class="card glass-panel cmp-charts">
+                     <div class="cmp-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                         <h2>Gantt Charts</h2>
+                         <div class="tq-inline" style="background: rgba(0, 0, 0, 0.2); padding: 0.5rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--glass-border);">
+                             <label for="compare-tq-input">RR Time Quantum:</label>
+                             <input type="number" id="compare-tq-input" min="1" value="2" class="num-input" style="width: 80px; display: inline-block; padding: 0.4rem; text-align: center; margin-left: 0.5rem;">
+                         </div>
+                     </div>
+                     <div class="stacked-charts">
+                         <div class="chart-row">
+                             <div class="chart-label">FCFS</div>
+                             <div class="gantt-chart-wrapper">
+                                 <div class="gantt-chart" id="cmp-gantt-fcfs"></div>
+                                 <div class="gantt-ticks" id="cmp-ticks-fcfs"></div>
+                             </div>
+                         </div>
+                         <div class="chart-row">
+                             <div class="chart-label">SJF</div>
+                             <div class="gantt-chart-wrapper">
+                                 <div class="gantt-chart" id="cmp-gantt-sjf"></div>
+                                 <div class="gantt-ticks" id="cmp-ticks-sjf"></div>
+                             </div>
+                         </div>
+                         <div class="chart-row">
+                             <div class="chart-label">SRTF</div>
+                             <div class="gantt-chart-wrapper">
+                                 <div class="gantt-chart" id="cmp-gantt-srtf"></div>
+                                 <div class="gantt-ticks" id="cmp-ticks-srtf"></div>
+                             </div>
+                         </div>
+                         <div class="chart-row">
+                             <div class="chart-label">RR</div>
+                             <div class="gantt-chart-wrapper">
+                                 <div class="gantt-chart" id="cmp-gantt-rr"></div>
+                                 <div class="gantt-ticks" id="cmp-ticks-rr"></div>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+                 
+                 <div class="card glass-panel">
+                     <h2>Comparison Metrics</h2>
+                     <div class="table-container">
+                         <table id="comparison-metrics-table">
+                             <thead>
+                                 <tr>
+                                     <th>Algorithm</th>
+                                     <th>Avg Turnaround Time</th>
+                                     <th>Avg Waiting Time</th>
+                                 </tr>
+                             </thead>
+                             <tbody>
+                                 <!-- JS populated -->
+                             </tbody>
+                         </table>
+                     </div>
+                     <div id="best-algo-message" style="margin-top: 1.5rem; text-align: center; font-size: 1.1rem; color: var(--accent);"></div>
+                 </div>
+            </section>
+
+        </main>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
