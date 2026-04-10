@@ -83,7 +83,7 @@ http://localhost/index.html
 
 ## 👨‍💻 Author
 
-Your Name
+Tamojit Ghosh
 
 
 ## 📜 License
